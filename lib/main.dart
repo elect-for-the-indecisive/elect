@@ -1,111 +1,111 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart' show rootBundle;
 
-void main() => runApp(MyApp());
+import './restaurantList.dart';
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+void main() {
+  runApp(Elector());
+}
+
+Future<List<Restaurant>> fetchRestaurants () async {
+  // load api key from secrets.json file
+  String secrets = await rootBundle.loadString('assets/secrets.json');
+  String apiKey = json.decode(secrets)['google_maps_api_key'];
+  // set up the URI for the places API
+  var uri = Uri.https('maps.googleapis.com', '/maps/api/place/nearbysearch/json', {
+    'location': '40.717061,-73.950175', 
+    'radius': '2000', 
+    'type': 'restaurant', 
+    'keyword': 'restaurant',
+    'key': '$apiKey' }).toString();
+  // send an http request using http.get
+  // http.get returns a future that contains a response
+  final response = await http.get(uri);
+  // if we get a response, return a list of restaurants
+  // otherwise, throw an error
+  if (response.statusCode == 200) {
+    // convert the response body into a JSON map
+    var data = json.decode(response.body);
+    // get the restaurants from the JSON data
+    var restaurantsJson = data['results'] as List;
+    // map through the restaurants and create a list of Restaurant objects
+    List<Restaurant> restaurantsList = restaurantsJson.map<Restaurant>((restaurant) => Restaurant.fromJson(restaurant)).toList();
+    return restaurantsList;
+  } else {
+    throw Exception('Failed to load restaurants');
+  }
+} 
+
+// this is a class that contains the data from an http request to the places api
+// an instance of this class is a plain old dart object for a particular restaurant
+class Restaurant {
+  final String name;
+
+  Restaurant({this.name});
+
+  // this is factory constructor that creates a Restaurant from JSON
+  factory Restaurant.fromJson(Map<String, dynamic> json) {
+    return Restaurant(
+      name: json['name'],
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
+// Elector is a stateful widget
+class Elector extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _ElectorState createState() => _ElectorState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+// define the state for the Elector widget
+class _ElectorState extends State<Elector> {
+  // the state will contain a list of Restaurant objects 
+  Future<List<Restaurant>> restaurants;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  // fetch the restaurants using the fetchRestaurants function
+  @override
+  void initState() {
+    super.initState();
+    restaurants = fetchRestaurants();
   }
 
+  // define the build method for the Elector widget
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Elect'),
+        ),
+        // use the FutureBuilder widget to display the data
+        // this widget is provided by Flutter 
+        // it makes it easy to work with async data sources
+        // it takes in two parameters: future and builder
+        body: Center(
+          child: FutureBuilder<List<Restaurant>>(
+            // future refers to the future you want to work with
+            // in this case, the future returned from fetchRestaurants
+            future: restaurants,
+            // builder is a function that tells Flutter what to render 
+            // depending on the state of the future (loading, success, or error)
+            builder: (context, snapshot) {
+              // if data is returned, render the RestaurantList widget
+              if (snapshot.hasData) {
+                return RestaurantList(snapshot.data);
+              // if no data is returned, show the error
+              } else if (snapshot.hasError) {
+                return Text("${snapshot.error}");
+              }
+              // by default, show a loading spinner.
+              return CircularProgressIndicator();
+            },
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
