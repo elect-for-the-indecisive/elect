@@ -5,8 +5,7 @@ import 'package:elect/elector.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
-
-import './restaurantList.dart';
+import 'package:geolocator/geolocator.dart';
 
 // render our app
 void main() {
@@ -15,18 +14,21 @@ void main() {
 
 // this function gets a list of Restuarant objects from the Places API
 Future<List<Restaurant>> fetchRestaurants() async {
+  Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  String location = '${position.latitude},${position.longitude}';
   // load api key from secrets.json file
   String secrets = await rootBundle.loadString('assets/secrets.json');
   String apiKey = json.decode(secrets)['google_maps_api_key'];
   // set up the URI for the places API
   var uri =
       Uri.https('maps.googleapis.com', '/maps/api/place/nearbysearch/json', {
-    'location': '40.717061,-73.950175',
+    'location': location,
     'radius': '2000',
     'type': 'restaurant',
     'keyword': 'restaurant',
     'key': '$apiKey'
   }).toString();
+  print(uri);
   // send an http request using http.get
   // http.get returns a future that contains a response
   final response = await http.get(uri);
