@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinning_wheel/flutter_spinning_wheel.dart';
 
-import './main.dart';
+import './restaurants.dart';
 
 // Elector is a stateful widget
 class Elector extends StatefulWidget {
@@ -79,9 +79,8 @@ class WheelStatus extends StatelessWidget {
       child: Text(
         '${restaurants[selected].name}',
         style: TextStyle(
-          fontSize: 20.0,
+          fontSize: 24.0,
           color: Color(0xffBAD7F2),
-          fontWeight: FontWeight.w100,
         ),
       ),
     );
