@@ -14,18 +14,21 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   // the state will take in a list of Restaurant objects
   Future<List<Restaurant>> restaurants;
+  double radius = 2000;
 
-  _updateRestaurantsState(String radius) {
+  _updateRestaurantsState(double newRadius) {
     setState(() {
+      radius = newRadius;
       restaurants = fetchRestaurants(radius.toString());
     });
+    Navigator.pop(context);
   }
 
   _showFiltersDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return FiltersDialog(updateRestaurants: _updateRestaurantsState);
+        return FiltersDialog(updateRestaurants: _updateRestaurantsState, latestRadius: radius);
       },
     );
   }
@@ -34,7 +37,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    restaurants = fetchRestaurants('2000');
+    restaurants = fetchRestaurants(radius.toString());
   }
 
   @override

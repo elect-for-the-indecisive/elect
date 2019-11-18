@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 
-typedef updateRestaurantsCallback = void Function(String radius);
+typedef updateRestaurantsCallback = void Function(double radius);
 
 class FiltersDialog extends StatefulWidget {
   final updateRestaurantsCallback updateRestaurants;
+  final double latestRadius;
 
-  FiltersDialog({Key key, this.updateRestaurants}) : super(key: key);
+  FiltersDialog({Key key, this.updateRestaurants, this.latestRadius}) : super(key: key);
 
   @override
   _FiltersDialogState createState() => _FiltersDialogState();
 }
 
 class _FiltersDialogState extends State<FiltersDialog> {
-  double _radius = 2000;
+  double _radius;
+
+  @override
+  void initState() {
+    super.initState();
+    _radius = widget.latestRadius;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +42,7 @@ class _FiltersDialogState extends State<FiltersDialog> {
         RaisedButton(
           child: Text('Apply'),
           onPressed: () => {
-            widget.updateRestaurants(_radius.toString()),
-            Navigator.pop(context),
+            widget.updateRestaurants(_radius),
           },
           color: Color(0xff99C7B1),
           textColor: Color(0xffffffff),

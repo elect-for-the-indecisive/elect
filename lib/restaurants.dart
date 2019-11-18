@@ -5,7 +5,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:geolocator/geolocator.dart';
 
 // this function gets a list of Restuarant objects from the Places API
-Future<List<Restaurant>> fetchRestaurants(radius) async {
+Future<List<Restaurant>> fetchRestaurants(String radius) async {
   Position position = await Geolocator()
       .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
   String location = '${position.latitude},${position.longitude}';
