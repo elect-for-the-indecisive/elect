@@ -14,7 +14,8 @@ void main() {
 
 // this function gets a list of Restuarant objects from the Places API
 Future<List<Restaurant>> fetchRestaurants() async {
-  Position position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  Position position = await Geolocator()
+      .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
   String location = '${position.latitude},${position.longitude}';
   // load api key from secrets.json file
   String secrets = await rootBundle.loadString('assets/secrets.json');
@@ -83,10 +84,19 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(fontFamily: 'Montserrat'),
       home: Scaffold(
-        backgroundColor: Color(0xff3E587D), //Color(0xffBAD7F2), //Color(0xffD1CEF1),
+        backgroundColor: Color(0xff3E587D),
         appBar: AppBar(
           backgroundColor: Color(0xffBAD7F2),
+          title: Text(
+            'Elect',
+            style: TextStyle(
+                fontSize: 24,
+                color: Color(0xff3E587D),
+                fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
         ),
         body: Center(
           child:
@@ -104,14 +114,13 @@ class _AppState extends State<App> {
                     // if data is returned, render the RestaurantList widget
                     if (snapshot.hasData) {
                       return Elector(restaurants: snapshot.data);
-                    // if no data is returned, show the error
+                      // if no data is returned, show the error
                     } else if (snapshot.hasError) {
                       return Text("${snapshot.error}");
                     }
                     // by default, show a loading spinner.
                     return CircularProgressIndicator();
-                  }
-              ),
+              }),
         ),
       ),
     );

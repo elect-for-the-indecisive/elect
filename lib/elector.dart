@@ -79,8 +79,9 @@ class WheelStatus extends StatelessWidget {
       child: Text(
         '${restaurants[selected].name}',
         style: TextStyle(
-          fontSize: 24.0,
-          color: Color(0xffBAD7F2), 
+          fontSize: 20.0,
+          color: Color(0xffBAD7F2),
+          fontWeight: FontWeight.w100,
         ),
       ),
     );
