@@ -4,6 +4,7 @@ import 'package:elect/elector.dart';
 import 'package:flutter/material.dart';
 
 import './restaurants.dart';
+import './filters.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -14,14 +15,17 @@ class _HomeState extends State<Home> {
   // the state will take in a list of Restaurant objects
   Future<List<Restaurant>> restaurants;
 
+  _updateRestaurantsState(String radius) {
+    setState(() {
+      restaurants = fetchRestaurants(radius.toString());
+    });
+  }
+
   _showFiltersDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Text('Filters'),
-          children: [Text('Radius')],
-        );
+        return FiltersDialog(updateRestaurants: _updateRestaurantsState);
       },
     );
   }
@@ -30,7 +34,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    restaurants = fetchRestaurants();
+    restaurants = fetchRestaurants('2000');
   }
 
   @override
