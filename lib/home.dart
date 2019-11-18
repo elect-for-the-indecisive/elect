@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:elect/elector.dart';
 import 'package:flutter/material.dart';
+import 'package:toast/toast.dart';
 
 import './restaurants.dart';
 import './filters.dart';
@@ -22,13 +23,22 @@ class _HomeState extends State<Home> {
       restaurants = fetchRestaurants(radius.toString());
     });
     Navigator.pop(context);
+    Toast.show(
+      'Generated new restaurants!',
+      context,
+      backgroundColor: Color(0xff99C7B1),
+      textColor: Color(0xffffffff),
+      duration: Toast.LENGTH_LONG,
+      gravity: Toast.BOTTOM 
+    );
   }
 
   _showFiltersDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return FiltersDialog(updateRestaurants: _updateRestaurantsState, latestRadius: radius);
+        return FiltersDialog(
+            updateRestaurants: _updateRestaurantsState, latestRadius: radius);
       },
     );
   }
@@ -90,7 +100,7 @@ class _HomeState extends State<Home> {
                   }
                   // by default, show a loading spinner.
                   return CircularProgressIndicator();
-            }),
+                }),
       ),
       drawer: Drawer(
         child: ListView(
